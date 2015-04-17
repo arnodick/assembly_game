@@ -64,83 +64,89 @@
     64                                  ;
     65                                  ; These labels refer to strings used for output
     66                                  ;
-    67 00000000 456E7465722061206E-     prompt1 db    "Enter a number: ", 0       ; don't forget nul terminator
-    68 00000009 756D6265723A2000   
-    69 00000011 456E74657220616E6F-     prompt2 db    "Enter another number: ", 0
-    70 0000001A 74686572206E756D62-
-    71 00000023 65723A2000         
-    72 00000028 596F7520656E746572-     outmsg1 db    "You entered ", 0
-    73 00000031 65642000           
-    74 00000035 20616E642000            outmsg2 db    " and ", 0
-    75 0000003B 2C207468652073756D-     outmsg3 db    ", the sum of these is ", 0
-    76 00000044 206F66207468657365-
-    77 0000004D 2069732000         
-    78                                  
-    79                                  
-    80                                  ;
-    81                                  ; uninitialized data is put in the .bss segment
-    82                                  ;
-    83                                  segment .bss
-    84                                  ;
-    85                                  ; These labels refer to double words used to store the inputs
-    86                                  ;
-    87 00000000 <res 00000004>          input1  resd 1
-    88 00000004 <res 00000004>          input2  resd 1
-    89                                  
-    90                                   
-    91                                  
-    92                                  ;
-    93                                  ; code is put in the .text segment
-    94                                  ;
-    95                                  segment .text
-    96                                          global  _asm_main
-    97                                  _asm_main:
-    98 00000000 C8000000                        enter   0,0               ; setup routine
-    99 00000004 60                              pusha
-   100                                  
-   101 00000005 B8[00000000]                    mov     eax, prompt1      ; print out prompt
-   102 0000000A E8(00000000)                    call    print_string
+    67 00000000 576861742076696369-     prompt1 db    "What vicious maneouver shal;l u choose?", 0Ah, 0       ; don't forget nul terminator
+    68 00000009 6F7573206D616E656F-
+    69 00000012 75766572207368616C-
+    70 0000001B 3B6C20752063686F6F-
+    71 00000024 73653F0A00         
+    72 00000029 0931292050756E6368-     move1 db    09h, "1) Punch", 0Ah, 0
+    73 00000032 0A00               
+    74 00000034 093229204B69636B0A-     move2 db    09h, "2) Kick", 0Ah, 0
+    75 0000003D 00                 
+    76 0000003E 093329205061727279-     move3 db    09h, "3) Parry", 0Ah, 0
+    77 00000047 0A00               
+    78 00000049 09342920446F646765-     move4 db    09h, "4) Dodge", 0Ah, 0
+    79 00000052 0A00               
+    80 00000054 596F7520626C6F7720-     outcome1 db    "You blow your opponent with a Mighty PUNCH!", 0
+    81 0000005D 796F7572206F70706F-
+    82 00000066 6E656E742077697468-
+    83 0000006F 2061204D6967687479-
+    84 00000078 2050554E43482100   
+    85 00000080 20596F7572206F7070-     outcome2 db    " Your opponent's defense are no match for your swift feet KICKs", 0
+    86 00000089 6F6E656E7427732064-
+    87 00000092 6566656E7365206172-
+    88 0000009B 65206E6F206D617463-
+    89 000000A4 6820666F7220796F75-
+    90 000000AD 722073776966742066-
+    91 000000B6 656574204B49434B73-
+    92 000000BF 00                 
+    93 000000C0 2C596F757220717569-     outcome3 db    ",Your quick and nimble hands PARRY the technique!", 0
+    94 000000C9 636B20616E64206E69-
+    95 000000D2 6D626C652068616E64-
+    96 000000DB 732050415252592074-
+    97 000000E4 686520746563686E69-
+    98 000000ED 7175652100         
+    99 000000F2 596F757220444F4447-     outcome4 db    "Your DODGE is effervescent!", 0
+   100 000000FB 452069732065666665-
+   101 00000104 7276657363656E7421-
+   102 0000010D 00                 
    103                                  
-   104 0000000F E8(00000000)                    call    read_int          ; read integer
-   105 00000014 A3[00000000]                    mov     [input1], eax     ; store into input1
-   106                                  
-   107 00000019 B8[11000000]                    mov     eax, prompt2      ; print out prompt
-   108 0000001E E8(00000000)                    call    print_string
-   109                                  
-   110 00000023 E8(00000000)                    call    read_int          ; read integer
-   111 00000028 A3[04000000]                    mov     [input2], eax     ; store into input2
-   112                                  
-   113 0000002D A1[00000000]                    mov     eax, [input1]     ; eax = dword at input1
-   114 00000032 0305[04000000]                  add     eax, [input2]     ; eax += dword at input2
-   115 00000038 89C3                            mov     ebx, eax          ; ebx = eax
-   116                                          dump_regs 1               ; dump out register values
-   117 0000003A 6A01                <1>  push dword %1
-   118 0000003C E8(00000000)        <1>  call sub_dump_regs
-   119                                          dump_mem 2, outmsg1, 1    ; dump out memory
-   120 00000041 6A02                <1>  push dword %1
-   121 00000043 68[28000000]        <1>  push dword %2
-   122 00000048 6A01                <1>  push dword %3
-   123 0000004A E8(00000000)        <1>  call sub_dump_mem
-   124                                  ;
-   125                                  ; next print out result message as series of steps
-   126                                  ;
-   127 0000004F B8[28000000]                    mov     eax, outmsg1
-   128 00000054 E8(00000000)                    call    print_string      ; print out first message
-   129 00000059 A1[00000000]                    mov     eax, [input1]     
-   130 0000005E E8(00000000)                    call    print_int         ; print out input1
-   131 00000063 B8[35000000]                    mov     eax, outmsg2
-   132 00000068 E8(00000000)                    call    print_string      ; print out second message
-   133 0000006D A1[04000000]                    mov     eax, [input2]
-   134 00000072 E8(00000000)                    call    print_int         ; print out input2
-   135 00000077 B8[3B000000]                    mov     eax, outmsg3
-   136 0000007C E8(00000000)                    call    print_string      ; print out third message
-   137 00000081 89D8                            mov     eax, ebx
-   138 00000083 E8(00000000)                    call    print_int         ; print out sum (ebx)
-   139 00000088 E8(00000000)                    call    print_nl          ; print new-line
+   104                                  
+   105                                  
+   106                                  ;
+   107                                  ; uninitialized data is put in the .bss segment
+   108                                  ;
+   109                                  segment .bss
+   110                                  ;
+   111                                  ; These labels refer to double words used to store the inputs
+   112                                  ;
+   113 00000000 <res 00000004>          input1  resd 1
+   114 00000004 <res 00000004>          input2  resd 1
+   115                                   
+   116                                  
+   117                                  ;
+   118                                  ; code is put in the .text segment
+   119                                  ;
+   120                                  segment .text
+   121                                          global  _asm_main
+   122                                  _asm_main:
+   123 00000000 C8000000                        enter   0,0               ; setup routine
+   124 00000004 60                              pusha
+   125                                  
+   126 00000005 B8[00000000]                    mov     eax, prompt1      ; print out prompt
+   127 0000000A E8(00000000)                    call    print_string
+   128                                  		
+   129 0000000F B8[29000000]            		mov     eax, move1      ; print out prompt
+   130 00000014 E8(00000000)                    call    print_string
+   131                                  		
+   132 00000019 B8[34000000]            		mov     eax, move2      ; print out prompt
+   133 0000001E E8(00000000)                    call    print_string
+   134                                  		
+   135 00000023 B8[3E000000]            		mov     eax, move3      ; print out prompt
+   136 00000028 E8(00000000)                    call    print_string
+   137                                  		
+   138 0000002D B8[49000000]            		mov     eax, move4      ; print out prompt
+   139 00000032 E8(00000000)                    call    print_string
    140                                  
-   141 0000008D 61                              popa
-   142 0000008E B800000000                      mov     eax, 0            ; return back to C
-   143 00000093 C9                              leave                     
-   144 00000094 C3                              ret
-   145                                  
+   141 00000037 E8(00000000)                    call    read_int          ; read integer
+   142 0000003C A3[00000000]                    mov     [input1], eax     ; store into input1
+   143                                  		
+   144 00000041 B8[54000000]            		mov		eax, outcome1
+   145 00000046 E8(00000000)            		call	print_string
    146                                  
+   147 0000004B 61                              popa
+   148 0000004C B800000000                      mov     eax, 0            ; return back to C
+   149 00000051 C9                              leave                     
+   150 00000052 C3                              ret
+   151                                  
+   152                                  
