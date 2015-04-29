@@ -16,7 +16,12 @@ segment .bss
 
 segment .text
 
+_body:
+	pusha
+	
+;	call	no_cursor
 	mov 	ah, 01h				; set int to take a key input
+	call 	cursor_position1
 	int 	21h					; get ASCII key input, put it in AL
 	mov		dl, al				; move read ASCII value to DL
 	sub 	dl, 30h				; subtract 30 from char (convert digits to 0 - 9)
@@ -26,6 +31,7 @@ segment .text
 digit1:
 	mov		cl, 04h				; prepare CX with 4 loops
 	shl 	dl, cl				; shift the ASCII value left 4 bits (multiply it by 16, bc it's the higher digit)
+	call 	cursor_position2
 	int 	21h					; read next ASCII char from keyboard
 	sub		al, 30h				; convert to number again
 	cmp		al, 9h				; is it 0 - 9 again?
@@ -34,6 +40,43 @@ digit1:
 digit2:
 	add		dl, al				; add first digit to oher, high digit
 	int		20h					; exit
+	
+	popa
+	ret
+	
+no_cursor:
+	pusha
+	
+	mov 	ah, 01h				; set int to set cursor appearance
+	mov 	ch, 10h				; 5th bit = invisible cursor
+	int 	10h					; cursor = invisible
+	
+	popa
+	ret
+	
+cursor_position1:
+	pusha
+	
+	mov 	ah, 02h				; set int to set cursor position
+	mov 	bh, 00h				; graphics mode? dunno
+	mov 	dh, 0fh				; middle y?
+	mov		dl, 0fh				; middle x?
+	int 	10h					; set position
+	
+	popa
+	ret
+	
+cursor_position2:
+	pusha
+	
+	mov 	ah, 02h				; set int to set cursor position
+	mov 	bh, 00h				; graphics mode? dunno
+	mov 	dh, 10h				; middle y?
+	mov		dl, 10h				; middle x?
+	int 	10h					; set position
+	
+	popa
+	ret
 
 ;display an asterix
 ;	mov		ah, 2h				; output string with int 21
